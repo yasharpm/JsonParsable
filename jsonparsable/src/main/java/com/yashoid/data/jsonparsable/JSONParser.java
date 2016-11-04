@@ -189,10 +189,12 @@ public class JSONParser {
 	
 	public<T extends JSONParsable> void parseArray(JsonReader reader, ArrayList<T> list, JSONFieldParser parser) throws Exception {
 		reader.beginArray();
-		
-		T object = (T) parse(reader, parser);
-		list.add(object);
-		
+
+		while (reader.hasNext()) {
+			T object = (T) parse(reader, parser);
+			list.add(object);
+		}
+
 		reader.endArray();
 	}
 	

@@ -4,14 +4,14 @@ import android.content.Context;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
+import com.yashoid.data.jsonparsable.JSONParsable.JsonParsableCreator;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import com.yashoid.data.jsonparsable.JSONParsable.JsonParsableCreator;
 
 public class JSONParser {
 	
@@ -27,8 +27,8 @@ public class JSONParser {
 	
 	public static class JSONFieldParser {
 		
-		public static JSONFieldParser newInstance(Class<? extends JSONParsable> clazz, ClassLoader classLoader) {
-			return new JSONFieldParser(clazz, classLoader);
+		public static JSONFieldParser newInstance(Class<? extends JSONParsable> clazz) {
+			return new JSONFieldParser(clazz, clazz.getClassLoader());
 		}
 		
 		private HashMap<String, FieldTypeMap> map;
@@ -165,7 +165,7 @@ public class JSONParser {
 					if (reader.peek()!=JsonToken.NULL) {
 						Class<? extends JSONParsable> subClazz =
 								(Class<? extends JSONParsable>) parser.classLoader.loadClass(type);
-						JSONFieldParser subParser = JSONFieldParser.newInstance(subClazz, parser.classLoader);
+						JSONFieldParser subParser = JSONFieldParser.newInstance(subClazz);
 						JSONParsable subObject = parse(reader, subParser);
 						
 						onFieldParsed(object, field, name, subObject);
@@ -187,10 +187,10 @@ public class JSONParser {
 		return object;
 	}
 	
-	public void parseArray(JsonReader reader, ArrayList<JSONParsable> list, JSONFieldParser parser) throws Exception {
+	public<T extends JSONParsable> void parseArray(JsonReader reader, ArrayList<T> list, JSONFieldParser parser) throws Exception {
 		reader.beginArray();
 		
-		JSONParsable object = parse(reader, parser);
+		T object = (T) parse(reader, parser);
 		list.add(object);
 		
 		reader.endArray();
@@ -280,7 +280,7 @@ public class JSONParser {
 			ArrayList<JSONParsable> list = (ArrayList<JSONParsable>) dest;
 			
 			Class<? extends JSONParsable> subClazz = (Class<? extends JSONParsable>) parser.classLoader.loadClass(type);
-			JSONFieldParser subParser = JSONFieldParser.newInstance(subClazz, parser.classLoader);
+			JSONFieldParser subParser = JSONFieldParser.newInstance(subClazz);
 			
 			while (reader.hasNext()) {
 				if (reader.peek()!=JsonToken.NULL) {

@@ -188,6 +188,12 @@ public class JSONParser {
 	}
 	
 	public<T extends JSONParsable> void parseArray(JsonReader reader, ArrayList<T> list, JSONFieldParser parser) throws Exception {
+		if (reader.peek()==JsonToken.NULL) {
+			reader.nextNull();
+
+			return;
+		}
+
 		reader.beginArray();
 
 		while (reader.hasNext()) {
